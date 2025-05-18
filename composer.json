@@ -1,0 +1,17 @@
+{
+    "name": "codespace/r2-image-compresser",
+    "require": {
+        "aws/aws-sdk-php": "^3.343"
+    },
+    "autoload": {
+        "psr-4": {
+            "Codespace\\R2ImageCompresser\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "LYJ",
+            "email": "47962247+shuangyatech@users.noreply.github.com"
+        }
+    ]
+}
