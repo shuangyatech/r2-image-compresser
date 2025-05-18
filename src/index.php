@@ -76,53 +76,59 @@ function getFile($fileName) {
     ]);
     $request = $client->createPresignedRequest($cmd, '+1 hour');
     $url = $request->getUri();
-    return fetch($url);
-}
-
-function listFiles($prefix) {
-    global $client;
-    $token = null;
-    $result = [];
-    while (true) {
-        $res = $client->ListObjectsV2([
-            'Bucket' => getenv('R2_BUCKET'),
-            'ContinuationToken' => $token,
-            'MaxKeys' => 100,
-            'Prefix' => $prefix
-        ]);
-        if (is_array($res['Contents'])) {
-            $result = array_merge($result, $res['Contents']);
-        }
-        if ($res['ContinuationToken']) {
-            $token = $res['ContinuationToken'];
-        }
-        if (!$res['IsTruncated']) {
-            break;
-        }
+    $result = fetch($url);
+    if (strlen($result) < 200 && strpos($result, '<?xml') === 0 && strpos($result, 'NoSuchKey') !== false) {
+        return null;
     }
     return $result;
 }
 
 function main() {
-    // $dir = sys_get_temp_dir() . '/r2compress';
-    $dir = __DIR__ . '/r2compress';
+    $dir = sys_get_temp_dir() . '/r2compress';
+    // $dir = __DIR__ . '/r2compress';
     if (!file_exists($dir)) {
         mkdir($dir);
     }
     var_dump($dir);
-    $list = listFiles('detail/2025051814/');
 
-    foreach ($list as $file) {
-        $key = $file['Key'];
+    // TODO: get key list
+    $list = ['test.1', 'user_avatar/2984/2025051615_c3e29fe87a9a.png'];
+
+    foreach ($list as $key) {
         $info = pathinfo($key);
         $filePath = $dir . '/' . $info['basename'];
-        file_put_contents($filePath, getFile($key));
-        var_dump($file);
+        $fileContent = getFile($key);
+        if ($fileContent === null) {
+            // file not exists
+            echo 'File ', $key, ' not exists', "\n";
+            continue;
+        }
+        file_put_contents($filePath, $fileContent);
+        $oldSize = strlen($fileContent);
         if (strtolower($info['extension']) === 'jpg') {
-            system('jpegoptim -m 90 ' . $filePath);
+            $command = '/opt/mozjpeg/bin/cjpeg -quality 90 ' . $filePath;
         }
         if (strtolower($info['extension']) === 'png') {
-            system('optipng ' . $filePath);
+            // $command = 'pngquant --speed=1 --quality=90-100 - < ' . escapeshellarg($filePath);
+            exec('optipng -o5 ' . $filePath);
+            $newSize = filesize($filePath);
+        }
+        if (isset($command)) {
+            echo '[', $info['basename'], ']: ';
+            $result = shell_exec($command);
+            if (strlen($result) > 100) {
+                file_put_contents($filePath, $result);
+                $newSize = filesize($filePath);
+                echo 'success: ', $oldSize, '->', $newSize, "\n";
+            } else {
+                echo 'fail: ', $result, "\n";
+            }
+            unset($command, $result);
+        }
+        // check file size
+        if ($newSize < $oldSize) {
+            echo 'update file: ', $key, "\n";
+            writeFile($key, file_get_contents($filePath));
         }
     }
 }
