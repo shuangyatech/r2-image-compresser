@@ -1,0 +1,30 @@
+name: main
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+      - name: Install mozjpeg
+        run: sudo dpkg -i $GITHUB_WORKSPACE/mozjpeg_3.2_amd64.deb
+      - name: Install optipng
+        run: sudo apt-get install optipng
+      - name: Run
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ACCOUNT: ${{ secrets.R2_ACCOUNT }}
+          R2_KEY: ${{ secrets.R2_KEY }}
+          R2_SECRET: ${{ secrets.R2_SECRET }}
+          PROVIDER_URL: ${{ secrets.PROVIDER_URL }}
+          PROVIDER_TOKEN: ${{ secrets.PROVIDER_TOKEN }}
+        run: php ./src/index.php
