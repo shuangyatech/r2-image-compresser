@@ -170,11 +170,22 @@ function main() {
 
   $list = fetchApi('upload/list');
   echo 'File list: ', json_encode($list), "\n\n\n";
-  foreach ($list as $key) {
+
+  // remove
+  foreach ($list['rm'] as $key) {
+    echo 'Remove file ', $key, "\n";
+    delFile($key);
+  }
+
+  foreach ($list['add'] as $key) {
     $info = pathinfo($key);
+    if (in_array($key, $list['rm'])) {
+      echo 'File ', $key, ' removed, skip compress', "\n";
+      continue;
+    }
     // check file is using or not
     if (!checkFileUsing($key, $info)) {
-      echo 'File ', $key, ' is not using', "\n";
+      echo 'File ', $key, ' is not using, skip compress', "\n";
       continue;
     }
     $filePath = $dir . '/' . $info['basename'];
