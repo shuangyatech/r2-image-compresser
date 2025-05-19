@@ -26,7 +26,7 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
       - name: Install dependencies
-        run: composer install --prefer-dist
+        run: composer install
       - name: Install mozjpeg
         run: sudo dpkg -i $GITHUB_WORKSPACE/mozjpeg_3.2_amd64.deb
       - name: Install optipng
