@@ -95,12 +95,12 @@ function getFile($fileName) {
 
 function delFile($fileName) {
   global $client;
-  echo 'delete ', $fileName, "\n";
-  // $result = $client->deleteObject([
-  //   'Bucket' => getenv('R2_BUCKET'),
-  //   'Key' => $fileName
-  // ]);
-  // return $result;
+  // echo 'delete ', $fileName, "\n";
+  $result = $client->deleteObject([
+    'Bucket' => getenv('R2_BUCKET'),
+    'Key' => $fileName
+  ]);
+  return $result;
 }
 
 $workCache = [];
