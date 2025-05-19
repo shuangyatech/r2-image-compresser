@@ -112,7 +112,7 @@ function checkFileUsing($key, $info) {
   
   if ($scene === 'user_avatar') {
     $userId = $meta[1];
-    if (!preg_match('^/\d+/$', $userId)) {
+    if (!preg_match('/^(\d+)$/', $userId)) {
       return true;
     }
     if (!isset($userCache[$userId])) {
@@ -138,7 +138,7 @@ function checkFileUsing($key, $info) {
       return true;
     }
     $workId = substr($meta[1], 2);
-    if (!preg_match('^/\d+/$', $workId)) {
+    if (!preg_match('/^(\d+)$/', $workId)) {
       return true;
     }
     if (!isset($workCache[$workId])) {
