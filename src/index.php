@@ -95,11 +95,11 @@ function getFile($fileName) {
 
 function delFile($fileName) {
   global $client;
-	echo 'delete ', $fileName, "\n";
+  echo 'delete ', $fileName, "\n";
   // $result = $client->deleteObject([
   //   'Bucket' => getenv('R2_BUCKET'),
   //   'Key' => $fileName
-	// ]);
+  // ]);
   // return $result;
 }
 
@@ -120,23 +120,23 @@ function checkFileUsing($key, $info) {
     }
     if (is_array($userCache[$userId])) {
       if (empty($userCache[$userId]['avatar'])) {
-				delFile($key);
+        delFile($key);
         return false;
       }
-			$urlPath = substr(parse_url($userCache[$userId]['avatar'], PHP_URL_PATH), 1);
-			if ($urlPath !== $key) {
-				delFile($key);
+      $urlPath = substr(parse_url($userCache[$userId]['avatar'], PHP_URL_PATH), 1);
+      if ($urlPath !== $key) {
+        delFile($key);
         return false;
-			}
+      }
     }
-		return true;
+    return true;
   }
 
-	if ($scene === 'work_avatar') {
-		if (strpos($meta[1], 'w_') !== 0) {
-			// can not check
-			return true;
-		}
+  if ($scene === 'work_avatar') {
+    if (strpos($meta[1], 'w_') !== 0) {
+      // can not check
+      return true;
+    }
     $workId = substr($meta[1], 2);
     if (!preg_match('^/\d+/$', $workId)) {
       return true;
@@ -146,19 +146,19 @@ function checkFileUsing($key, $info) {
     }
     if (is_array($workCache[$workId])) {
       if (empty($workCache[$workId]['avatar'])) {
-				delFile($key);
+        delFile($key);
         return false;
       }
-			$urlPath = substr(parse_url($workCache[$workId]['avatar'], PHP_URL_PATH), 1);
-			if ($urlPath !== $key) {
-				delFile($key);
+      $urlPath = substr(parse_url($workCache[$workId]['avatar'], PHP_URL_PATH), 1);
+      if ($urlPath !== $key) {
+        delFile($key);
         return false;
-			}
+      }
     }
-		return true;
-	}
+    return true;
+  }
 
-	return true;
+  return true;
 }
 
 function main() {
@@ -173,10 +173,10 @@ function main() {
   foreach ($list as $key) {
     $info = pathinfo($key);
     // check file is using or not
-		if (!checkFileUsing($key, $info)) {
-			echo 'File ', $key, ' is not using', "\n";
-			continue;
-		}
+    if (!checkFileUsing($key, $info)) {
+      echo 'File ', $key, ' is not using', "\n";
+      continue;
+    }
     $filePath = $dir . '/' . $info['basename'];
     $fileContent = getFile($key);
     if ($fileContent === null) {
